@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>HealthMate</title>
+</head>
+<body>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --g:#1D9E75;--gl:#E1F5EE;--gm:#5DCAA5;--gd:#0F6E56;
+  --bg:#f2faf6;--card:#fff;--text:#1a2e24;--muted:#5a7a6a;
+  --bdr:#d0ede2;--navh:64px;--r:14px;
+}
+/* Prevent layout shift / image flicker in MIT App Inventor WebViewer */
+img{display:block;max-width:100%;height:auto;-webkit-transform:translateZ(0);transform:translateZ(0);}
+svg{overflow:visible;-webkit-transform:translateZ(0);transform:translateZ(0);}
+/* SDG 3 Banner */
+.sdg-banner{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  background:linear-gradient(90deg,#279B48,#3DB44B);
+  padding:8px 16px;
+  border-bottom:2px solid #1a7a35;
+}
+.sdg-icon{
+  width:38px;height:38px;border-radius:8px;background:#fff;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  border:2px solid rgba(255,255,255,0.6);
+  overflow:hidden;
+}
+.sdg-icon svg{width:24px;height:24px;}
+.sdg-text{color:#fff;}
+.sdg-text .sdg-num{font-size:10px;font-weight:700;letter-spacing:.5px;opacity:.9;text-transform:uppercase;}
+.sdg-text .sdg-label{font-size:13px;font-weight:800;line-height:1.2;}
+#app{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);max-width:400px;margin:0 auto;min-height:600px;position:relative;border-radius:20px;overflow:hidden;border:1.5px solid var(--bdr);}
+.topbar{background:#fff;padding:14px 16px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr);position:sticky;top:0;z-index:50;}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:18px;color:var(--gd);}
+.logo-box{width:30px;height:30px;background:var(--g);border-radius:9px;display:flex;align-items:center;justify-content:center;}
+.logo-box svg{width:16px;height:16px;fill:#fff;}
+.notif{width:34px;height:34px;border:1px solid var(--bdr);border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.notif svg{width:17px;height:17px;stroke:var(--gd);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.screen{display:none;padding-bottom:calc(var(--navh) + 8px);min-height:500px;}
+.screen.on{display:block;}
+.scrollz{padding:0 14px;}
+
+/* HERO */
+.hero{margin:14px 14px 0;border-radius:var(--r);padding:20px 18px;color:#fff;position:relative;overflow:hidden;}
+.hero-green{background:#0F6E56;}
+.hero-blue{background:#185FA5;}
+.hero-purple{background:#534AB7;}
+.hero h2{font-size:19px;font-weight:800;margin-bottom:5px;}
+.hero p{font-size:12px;opacity:.88;line-height:1.5;max-width:210px;}
+.hero-illo{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:44px;line-height:1;}
+
+/* SECTION TITLE */
+.stitle{font-weight:800;font-size:15px;color:var(--text);margin:16px 0 8px;}
+
+/* GRID CARDS */
+.cgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+.ccard{background:var(--card);border-radius:var(--r);padding:14px 12px;border:1.5px solid var(--bdr);cursor:pointer;transition:all .18s;}
+.ccard:hover,.ccard:active{border-color:var(--gm);background:var(--gl);transform:translateY(-2px);}
+.ccard .ci{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:9px;}
+.bg-g{background:#E1F5EE;}.bg-b{background:#E6F1FB;}.bg-a{background:#FAEEDA;}.bg-p{background:#EEEDFE;}
+.ccard h3{font-weight:700;font-size:13px;color:var(--text);margin-bottom:2px;}
+.ccard p{font-size:11px;color:var(--muted);line-height:1.4;}
+
+/* TIP CARDS */
+.tcard{background:var(--card);border-radius:var(--r);border:1.5px solid var(--bdr);padding:12px 14px;display:flex;align-items:flex-start;gap:12px;margin-bottom:8px;position:relative;cursor:pointer;transition:all .15s;}
+.tcard:hover{border-color:var(--gm);}
+.ticon{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.tbody h3{font-weight:700;font-size:14px;margin-bottom:3px;}
+.tbody p{font-size:12px;color:var(--muted);line-height:1.4;}
+.badge{position:absolute;top:10px;right:10px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;}
+.bg-today{background:var(--gl);color:var(--gd);}
+.bg-yest{background:#FAEEDA;color:#854F0B;}
+
+/* STRESS */
+.slvl{background:var(--card);border-radius:var(--r);border:1.5px solid var(--bdr);padding:16px 14px;margin-bottom:8px;}
+.slabel{display:flex;justify-content:space-between;margin-bottom:8px;}
+.slabel span{font-size:13px;color:var(--muted);}
+.slabel strong{font-size:14px;font-weight:800;color:#E2A020;}
+.sbar{height:10px;background:#eee;border-radius:99px;overflow:hidden;margin-bottom:4px;}
+.sfill{height:100%;border-radius:99px;transition:width .5s ease;}
+.sticks{display:flex;justify-content:space-between;}
+.sticks span{font-size:10px;color:var(--muted);}
+.sbtns{display:flex;gap:8px;margin-top:10px;}
+.sbtn{flex:1;padding:6px;border-radius:8px;border:1.5px solid var(--bdr);background:#fff;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;color:var(--text);}
+.sbtn:hover{background:var(--gl);border-color:var(--gm);}
+.sbtn.sel{border-color:var(--g);background:var(--gl);color:var(--gd);}
+
+.sfeat{background:var(--card);border-radius:var(--r);border:1.5px solid var(--bdr);padding:12px 14px;display:flex;align-items:center;gap:12px;margin-bottom:8px;cursor:pointer;transition:all .15s;}
+.sfeat:hover{border-color:var(--gm);background:var(--gl);}
+.sfi{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.sfb h3{font-weight:700;font-size:13px;margin-bottom:2px;}
+.sfb p{font-size:11px;color:var(--muted);}
+
+/* BREATHING MODAL */
+.modal-overlay{display:none;position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:80;align-items:center;justify-content:center;border-radius:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:20px;padding:24px 20px;width:310px;text-align:center;}
+.modal h3{font-weight:800;font-size:17px;margin-bottom:6px;color:var(--gd);}
+.modal p{font-size:13px;color:var(--muted);margin-bottom:18px;}
+.breath-circle{width:110px;height:110px;border-radius:50%;background:var(--gl);border:3px solid var(--gm);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--gd);transition:transform 1s ease,background 1s ease;}
+.breath-circle.expand{transform:scale(1.35);background:#b8f0d8;}
+.breath-circle.hold{background:#d4f5e9;}
+.breath-circle.shrink{transform:scale(1);background:var(--gl);}
+#breath-label{font-size:22px;font-weight:800;color:var(--gd);}
+.modal-close{width:100%;padding:10px;border-radius:10px;border:1.5px solid var(--bdr);background:#fff;font-size:13px;font-weight:700;cursor:pointer;color:var(--text);}
+.modal-close:hover{background:var(--gl);}
+
+/* JOURNAL */
+.journal-box{background:var(--card);border-radius:var(--r);border:1.5px solid var(--bdr);padding:14px;margin-bottom:8px;}
+.journal-box textarea{width:100%;border:1px solid var(--bdr);border-radius:10px;padding:10px;font-size:13px;resize:none;font-family:inherit;color:var(--text);outline:none;min-height:80px;}
+.journal-box textarea:focus{border-color:var(--gm);}
+.jsave{margin-top:8px;padding:8px 16px;background:var(--g);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;}
+.jsave:hover{background:var(--gd);}
+.jentries{margin-top:10px;}
+.jentry{background:var(--gl);border-radius:10px;padding:10px 12px;margin-bottom:6px;font-size:12px;color:var(--gd);}
+.jentry .jdate{font-size:10px;color:var(--muted);margin-bottom:2px;}
+
+/* RESOURCES */
+.rcrd{background:var(--card);border-radius:var(--r);border:1.5px solid var(--bdr);padding:12px 14px;display:flex;align-items:center;gap:12px;margin-bottom:8px;cursor:pointer;transition:all .15s;}
+.rcrd:hover{border-color:var(--gm);background:var(--gl);}
+.ri{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.rb h3{font-weight:700;font-size:13px;margin-bottom:2px;}
+.rb p{font-size:11px;color:var(--muted);}
+.rarrow{margin-left:auto;font-size:18px;color:var(--muted);}
+
+/* APPOINTMENT MODAL */
+.appt-modal{background:#fff;border-radius:20px;padding:22px 18px;width:320px;}
+.appt-modal h3{font-weight:800;font-size:16px;margin-bottom:14px;color:var(--gd);}
+.appt-modal label{font-size:12px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;}
+.appt-modal input,.appt-modal select{width:100%;border:1.5px solid var(--bdr);border-radius:9px;padding:8px 10px;font-size:13px;margin-bottom:10px;font-family:inherit;color:var(--text);background:#fff;outline:none;}
+.appt-modal input:focus,.appt-modal select:focus{border-color:var(--gm);}
+.abtnrow{display:flex;gap:8px;margin-top:4px;}
+.abtn{flex:1;padding:9px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;border:1.5px solid var(--bdr);}
+.abtn.primary{background:var(--g);color:#fff;border-color:var(--g);}
+.abtn.primary:hover{background:var(--gd);}
+.abtn.sec{background:#fff;color:var(--text);}
+.abtn.sec:hover{background:var(--gl);}
+.confirm-msg{text-align:center;padding:16px 0;}
+.confirm-msg .check{font-size:40px;margin-bottom:8px;}
+.confirm-msg h4{font-weight:800;font-size:15px;color:var(--gd);margin-bottom:4px;}
+.confirm-msg p{font-size:12px;color:var(--muted);}
+
+/* REMINDERS */
+.reminder-list{margin-top:8px;}
+.ritem{background:var(--card);border-radius:10px;border:1.5px solid var(--bdr);padding:10px 12px;display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.ritem .rdot{width:10px;height:10px;border-radius:50%;background:var(--gm);flex-shrink:0;}
+.ritem .rtext{flex:1;font-size:13px;}
+.ritem .rtime{font-size:11px;color:var(--muted);}
+.ritem .rdel{background:none;border:none;color:#E24B4A;cursor:pointer;font-size:16px;padding:0 4px;}
+.radd{display:flex;gap:8px;margin-top:4px;}
+.radd input{flex:1;border:1.5px solid var(--bdr);border-radius:9px;padding:8px 10px;font-size:12px;font-family:inherit;outline:none;}
+.radd input:focus{border-color:var(--gm);}
+.radd button{background:var(--g);color:#fff;border:none;border-radius:9px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;}
+
+/* BOTTOM NAV */
+.bnav{background:#fff;border-top:1px solid var(--bdr);display:flex;padding:8px 0 10px;position:sticky;bottom:0;z-index:50;}
+.nitem{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;color:var(--muted);font-size:10px;font-weight:700;border:none;background:none;transition:color .15s;}
+.nitem svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.nitem.on{color:var(--g);}
+</style>
+
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;">HealthMate campus wellness app with home, tips, stress management, and resources screens</h2>
+
+<div id="app">
+
+  <!-- SDG 3 BANNER -->
+  <div class="sdg-banner">
+    <div class="sdg-icon">
+      <!-- SDG 3 icon: heart with plus (Good Health) -->
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 21C12 21 3 13.5 3 8.5C3 5.42 5.42 3 8.5 3C10.24 3 11.91 3.81 13 5.08C14.09 3.81 15.76 3 17.5 3C20.58 3 23 5.42 23 8.5C23 13.5 14 21 12 21Z" fill="#E63946" stroke="none"/>
+        <line x1="9" y1="12" x2="15" y2="12" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+        <line x1="12" y1="9" x2="12" y2="15" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="sdg-text">
+      <div class="sdg-num">SDG No. 3</div>
+      <div class="sdg-label">Good Health and Well-being</div>
+    </div>
+  </div>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="logo">
+      <div class="logo-box"><svg viewBox="0 0 24 24"><path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z"/></svg></div>
+      HealthMate
+    </div>
+    <div class="notif"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+  </div>
+
+  <!-- HOME -->
+  <div class="screen on" id="s-home">
+    <div class="hero hero-green">
+      <h2>Welcome to HealthMate!</h2>
+      <p>Your campus wellness companion. Stay healthy and manage stress with ease!</p>
+      <div class="hero-illo"><svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M12 14c-5 0-8 2-8 4v1h16v-1c0-2-3-4-8-4z"/><path d="M9 8c0 0 1 3 3 3s3-3 3-3"/></svg></div>
+    </div>
+    <div class="scrollz">
+      <div class="stitle">What would you like to do?</div>
+      <div class="cgrid">
+        <div class="ccard" onclick="go('tips')"><div class="ci bg-g"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#1D9E75" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z"/><path d="M12 8v4l3 3"/></svg></div><h3>Wellness Tips</h3><p>Daily health tips for you.</p></div>
+        <div class="ccard" onclick="go('stress')"><div class="ci bg-b"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#185FA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5-2 4-2 4 2 4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div><h3>Manage Stress</h3><p>Relax your mental health.</p></div>
+        <div class="ccard" onclick="go('resources')"><div class="ci bg-p"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#534AB7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><h3>Campus Resources</h3><p>Access health services.</p></div>
+        <div class="ccard" onclick="go('tips')"><div class="ci bg-a"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#854F0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><h3>Daily Tracker</h3><p>Log your wellness habits.</p></div>
+      </div>
+      <div class="stitle">Today's Summary</div>
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px;">
+        <div style="background:#fff;border-radius:var(--r);border:1.5px solid var(--bdr);padding:14px 12px;text-align:center;">
+          <div style="font-size:26px;font-weight:800;color:var(--g)" id="water-count">0</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">glasses of water</div>
+          <button onclick="addWater()" style="margin-top:8px;background:var(--gl);color:var(--gd);border:none;border-radius:8px;padding:5px 14px;font-size:12px;font-weight:700;cursor:pointer;">+ Add</button>
+        </div>
+        <div style="background:#fff;border-radius:var(--r);border:1.5px solid var(--bdr);padding:14px 12px;text-align:center;">
+          <div style="font-size:26px;font-weight:800;color:#185FA5" id="steps-count">0</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px;">steps today</div>
+          <button onclick="addSteps()" style="margin-top:8px;background:#E6F1FB;color:#185FA5;border:none;border-radius:8px;padding:5px 14px;font-size:12px;font-weight:700;cursor:pointer;">+ Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIPS -->
+  <div class="screen" id="s-tips">
+    <div class="hero hero-green">
+      <h2>Daily Wellness Tips</h2>
+      <p>Learn new tips to boost your health and well-being!</p>
+      <div class="hero-illo"><svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12s1-3 4-3 4 3 4 3"/><path d="M12 9v6"/><circle cx="9" cy="10" r="1" fill="rgba(255,255,255,0.9)"/><circle cx="15" cy="10" r="1" fill="rgba(255,255,255,0.9)"/></svg></div>
+    </div>
+    <div class="scrollz">
+      <div class="stitle">Today's Tips</div>
+      <div class="tcard" onclick="toggleTip(this)">
+        <div class="ticon bg-b"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#185FA5" stroke-width="2" stroke-linecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></div>
+        <div class="tbody"><h3>Stay Hydrated</h3><p>Drink at least 8 glasses of water daily to stay hydrated and focused.</p></div>
+        <span class="badge bg-today">Today</span>
+      </div>
+      <div class="tcard" onclick="toggleTip(this)">
+        <div class="ticon bg-g"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#1D9E75" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="3"/><path d="M6 21v-2a6 6 0 0 1 6-6 6 6 0 0 1 6 6v2"/><path d="M8 21l1-5 3 2 3-2 1 5"/></svg></div>
+        <div class="tbody"><h3>Take Short Walks</h3><p>Take a 10-minute walk between classes to refresh your mind and body.</p></div>
+        <span class="badge bg-yest">Yesterday</span>
+      </div>
+      <div class="tcard" onclick="toggleTip(this)">
+        <div class="ticon bg-g"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#1D9E75" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a5 5 0 0 1 5 5c0 6-5 11-5 11S7 13 7 7a5 5 0 0 1 5-5z"/><circle cx="12" cy="7" r="2"/></svg></div>
+        <div class="tbody"><h3>Eat More Vegetables</h3><p>Include more vegetables in your meals to enhance your diet.</p></div>
+      </div>
+      <div class="tcard" onclick="toggleTip(this)">
+        <div class="ticon bg-a"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#854F0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/><line x1="23" y1="22" x2="1" y2="22"/><polyline points="8 6 12 2 16 6"/></svg></div>
+        <div class="tbody"><h3>Get Enough Sleep</h3><p>Aim for 7-9 hours of sleep each night for better focus and mood.</p></div>
+      </div>
+      <div class="tcard" onclick="toggleTip(this)">
+        <div class="ticon bg-p"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#534AB7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
+        <div class="tbody"><h3>Practice Mindfulness</h3><p>Spend 5 minutes meditating or breathing deeply each morning.</p></div>
+      </div>
+      <div class="tcard" onclick="toggleTip(this)">
+        <div class="ticon bg-b"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#185FA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></div>
+        <div class="tbody"><h3>Get Sunlight</h3><p>Step outside for a few minutes of natural sunlight to boost your vitamin D.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STRESS -->
+  <div class="screen" id="s-stress">
+    <div class="hero hero-blue">
+      <h2>Manage Stress</h2>
+      <p>Track your mental wellness and reduce stress effectively.</p>
+      <div class="hero-illo"><svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg></div>
+    </div>
+    <div class="scrollz">
+      <div class="stitle">How stressed are you?</div>
+      <div class="slvl">
+        <div class="slabel"><span>Your level</span><strong id="slvl-text">Moderate</strong></div>
+        <div class="sbar"><div class="sfill" id="sfill" style="width:55%;background:linear-gradient(90deg,#1D9E75,#E2A020);"></div></div>
+        <div class="sticks"><span>Low</span><span>Moderate</span><span>High</span></div>
+        <div class="sbtns">
+          <button class="sbtn" onclick="setStress('Low',20,'#1D9E75')">Low</button>
+          <button class="sbtn sel" onclick="setStress('Moderate',55,'#E2A020')">Moderate</button>
+          <button class="sbtn" onclick="setStress('High',88,'#E24B4A')">High</button>
+        </div>
+      </div>
+      <div class="stitle">Tools for You</div>
+      <div class="sfeat" onclick="openBreath()">
+        <div class="sfi bg-b"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#185FA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8.13 2 5 5.13 5 9c0 2.38 1.19 4.47 3 5.74V17a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2.26C17.81 13.47 19 11.38 19 9c0-3.87-3.13-7-7-7z"/></svg></div>
+        <div class="sfb"><h3>Guided Breathing</h3><p>Practice deep breathing exercises.</p></div>
+        <span style="margin-left:auto;color:var(--muted);">&#8250;</span>
+      </div>
+      <div class="sfeat" onclick="showJournal()">
+        <div class="sfi bg-a"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#854F0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+        <div class="sfb"><h3>Journal Your Thoughts</h3><p>Write down your thoughts and feelings.</p></div>
+        <span style="margin-left:auto;color:var(--muted);">&#8250;</span>
+      </div>
+      <div class="sfeat" onclick="showReminders()">
+        <div class="sfi bg-g"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#1D9E75" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div class="sfb"><h3>Set Reminders</h3><p>Schedule reminders for self-care.</p></div>
+        <span style="margin-left:auto;color:var(--muted);">&#8250;</span>
+      </div>
+
+      <div id="journal-section" style="display:none;">
+        <div class="stitle">My Journal</div>
+        <div class="journal-box">
+          <textarea id="journal-input" placeholder="Write how you feel today..."></textarea>
+          <button class="jsave" onclick="saveJournal()">Save Entry</button>
+        </div>
+        <div class="jentries" id="journal-entries"></div>
+      </div>
+
+      <div id="reminder-section" style="display:none;">
+        <div class="stitle">My Reminders</div>
+        <div class="reminder-list" id="reminder-list"></div>
+        <div class="radd">
+          <input id="rem-input" placeholder="e.g. Drink water" />
+          <input type="time" id="rem-time" style="width:90px;border:1.5px solid var(--bdr);border-radius:9px;padding:8px 6px;font-size:12px;outline:none;" />
+          <button onclick="addReminder()">Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESOURCES -->
+  <div class="screen" id="s-resources">
+    <div class="hero hero-purple">
+      <h2>Campus Health Resources</h2>
+      <p>Connect with campus health services for your well-being.</p>
+      <div class="hero-illo"><svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="12" y1="9" x2="12" y2="15"/></svg></div>
+    </div>
+    <div class="scrollz">
+      <div class="stitle">WSU Health Center</div>
+      <div class="rcrd" onclick="openAppt()">
+        <div class="ri bg-g"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#1D9E75" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        <div class="rb"><h3>Book an Appointment</h3><p>Schedule a visit with a campus health professional.</p></div>
+        <span class="rarrow">&#8250;</span>
+      </div>
+      <div class="rcrd" onclick="openHotlines()">
+        <div class="ri" style="background:#FCEBEB;"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#A32D2D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.21h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6.1 6.1l.91-.91a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.79 16.4z"/></svg></div>
+        <div class="rb"><h3>Health Hotlines</h3><p>Access emergency and support hotlines.</p></div>
+        <span class="rarrow">&#8250;</span>
+      </div>
+      <div class="rcrd" onclick="openCounselor()">
+        <div class="ri bg-b"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#185FA5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+        <div class="rb"><h3>Chat with a Counselor</h3><p>Get confidential counselling support.</p></div>
+        <span class="rarrow">&#8250;</span>
+      </div>
+      <div class="rcrd" onclick="openEvents()">
+        <div class="ri bg-a"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#854F0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+        <div class="rb"><h3>Wellness Events</h3><p>Join activities and workshops for wellness.</p></div>
+        <span class="rarrow">&#8250;</span>
+      </div>
+      <div class="rcrd">
+        <div class="ri bg-p"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#534AB7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+        <div class="rb"><h3>Health Records</h3><p>View and manage your medical information.</p></div>
+        <span class="rarrow">&#8250;</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BREATHING MODAL -->
+  <div class="modal-overlay" id="breath-modal">
+    <div class="modal">
+      <h3>Guided Breathing</h3>
+      <p id="breath-inst">Follow the circle — breathe with it.</p>
+      <div class="breath-circle" id="breath-circle"><span id="breath-label">Ready</span></div>
+      <div style="margin-bottom:14px;">
+        <button onclick="startBreath()" style="background:var(--g);color:#fff;border:none;border-radius:9px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;margin-right:8px;">Start</button>
+        <button onclick="stopBreath()" style="background:#fff;border:1.5px solid var(--bdr);border-radius:9px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;">Stop</button>
+      </div>
+      <button class="modal-close" onclick="closeBreath()">Close</button>
+    </div>
+  </div>
+
+  <!-- APPOINTMENT MODAL -->
+  <div class="modal-overlay" id="appt-modal">
+    <div class="appt-modal">
+      <div id="appt-form">
+        <h3>Book an Appointment</h3>
+        <label>Your Name</label>
+        <input type="text" id="appt-name" placeholder="e.g. Maria Santos" />
+        <label>Date</label>
+        <input type="date" id="appt-date" />
+        <label>Time</label>
+        <input type="time" id="appt-time" />
+        <label>Service</label>
+        <select id="appt-service">
+          <option>General Check-up</option>
+          <option>Mental Health Consultation</option>
+          <option>Dental</option>
+          <option>Laboratory</option>
+        </select>
+        <div class="abtnrow">
+          <button class="abtn sec" onclick="closeAppt()">Cancel</button>
+          <button class="abtn primary" onclick="confirmAppt()">Confirm</button>
+        </div>
+      </div>
+      <div id="appt-confirm" class="confirm-msg" style="display:none;">
+        <div class="check">✅</div>
+        <h4>Appointment Booked!</h4>
+        <p id="appt-summary"></p>
+        <br>
+        <button class="abtn primary" onclick="closeAppt()" style="width:100%;">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOTLINES MODAL -->
+  <div class="modal-overlay" id="hotlines-modal">
+    <div class="appt-modal">
+      <h3 style="margin-bottom:14px;">📞 Health Hotlines</h3>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+        <div style="background:#FCEBEB;border-radius:10px;padding:12px;"><div style="font-weight:700;font-size:13px;color:#A32D2D;">Emergency</div><div style="font-size:13px;color:var(--text);">911 / Campus Security: (033) 320-0439</div></div>
+        <div style="background:var(--gl);border-radius:10px;padding:12px;"><div style="font-weight:700;font-size:13px;color:var(--gd);">Mental Health</div><div style="font-size:13px;color:var(--text);">Hopeline: 2919 (toll-free)</div></div>
+        <div style="background:#E6F1FB;border-radius:10px;padding:12px;"><div style="font-weight:700;font-size:13px;color:#185FA5;">Health Center</div><div style="font-size:13px;color:var(--text);">(033) 317-1094 local 108</div></div>
+      </div>
+      <button class="abtn sec" onclick="closeHotlines()" style="width:100%;">Close</button>
+    </div>
+  </div>
+
+  <!-- COUNSELOR MODAL -->
+  <div class="modal-overlay" id="counselor-modal">
+    <div class="appt-modal">
+      <h3 style="margin-bottom:6px;">Chat with a Counselor</h3>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Your conversation is confidential.</p>
+      <div id="chat-msgs" style="background:#f4faf6;border-radius:10px;padding:10px;min-height:120px;max-height:160px;overflow-y:auto;margin-bottom:10px;font-size:12px;"></div>
+      <div style="display:flex;gap:8px;">
+        <input id="chat-input" style="flex:1;border:1.5px solid var(--bdr);border-radius:9px;padding:8px 10px;font-size:12px;outline:none;font-family:inherit;" placeholder="Type your message..." />
+        <button onclick="sendChat()" style="background:var(--g);color:#fff;border:none;border-radius:9px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;">Send</button>
+      </div>
+      <button class="modal-close" style="margin-top:10px;" onclick="closeCounselor()">Close</button>
+    </div>
+  </div>
+
+  <!-- EVENTS MODAL -->
+  <div class="modal-overlay" id="events-modal">
+    <div class="appt-modal">
+      <h3 style="margin-bottom:14px;">🎉 Wellness Events</h3>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+        <div style="background:var(--gl);border-radius:10px;padding:12px;">
+          <div style="font-weight:700;font-size:13px;color:var(--gd);">Yoga for Students</div>
+          <div style="font-size:11px;color:var(--muted);">Apr 26 · 7:00 AM · University Gym</div>
+        </div>
+        <div style="background:#E6F1FB;border-radius:10px;padding:12px;">
+          <div style="font-weight:700;font-size:13px;color:#185FA5;">Mental Health Seminar</div>
+          <div style="font-size:11px;color:var(--muted);">Apr 28 · 1:00 PM · AVR Building B</div>
+        </div>
+        <div style="background:#FAEEDA;border-radius:10px;padding:12px;">
+          <div style="font-weight:700;font-size:13px;color:#854F0B;">Nutrition Workshop</div>
+          <div style="font-size:11px;color:var(--muted);">May 3 · 9:00 AM · Health Center</div>
+        </div>
+        <div style="background:#EEEDFE;border-radius:10px;padding:12px;">
+          <div style="font-weight:700;font-size:13px;color:#534AB7;">Stress Relief Day</div>
+          <div style="font-size:11px;color:var(--muted);">May 10 · All Day · Campus Grounds</div>
+        </div>
+      </div>
+      <button class="abtn sec" onclick="closeEvents()" style="width:100%;">Close</button>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="bnav">
+    <button class="nitem on" id="n-home" onclick="go('home')">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home
+    </button>
+    <button class="nitem" id="n-tips" onclick="go('tips')">
+      <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 3.5-2.5 5.5-3 7H8c-.5-1.5-3-3.5-3-7a7 7 0 0 1 7-7z"/><line x1="8" y1="22" x2="16" y2="22"/><line x1="12" y1="22" x2="12" y2="16"/></svg>Tips
+    </button>
+    <button class="nitem" id="n-stress" onclick="go('stress')">
+      <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Stress
+    </button>
+    <button class="nitem" id="n-resources" onclick="go('resources')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Resources
+    </button>
+  </div>
+</div>
+
+<script>
+let water=0, steps=0;
+let breathTimer=null, breathPhase=0;
+let journals=[], reminders=[];
+let chatHistory=[];
+
+function go(tab){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.nitem').forEach(n=>n.classList.remove('on'));
+  document.getElementById('s-'+tab).classList.add('on');
+  document.getElementById('n-'+tab).classList.add('on');
+  document.getElementById('app').scrollTop=0;
+}
+
+function addWater(){water++;document.getElementById('water-count').textContent=water;}
+function addSteps(){steps+=500;document.getElementById('steps-count').textContent=steps.toLocaleString();}
+
+function toggleTip(card){
+  card.style.opacity=card.style.opacity==='0.5'?'1':'0.5';
+  card.style.textDecoration=card.style.textDecoration==='line-through'?'':'line-through';
+}
+
+function setStress(lvl,pct,color){
+  document.getElementById('slvl-text').textContent=lvl;
+  document.getElementById('slvl-text').style.color=color;
+  const f=document.getElementById('sfill');
+  f.style.width=pct+'%';
+  f.style.background='linear-gradient(90deg,#1D9E75,'+color+')';
+  document.querySelectorAll('.sbtn').forEach(b=>{b.classList.remove('sel');if(b.textContent===lvl)b.classList.add('sel');});
+}
+
+function showJournal(){
+  const j=document.getElementById('journal-section');
+  j.style.display=j.style.display==='none'?'block':'none';
+}
+function showReminders(){
+  const r=document.getElementById('reminder-section');
+  r.style.display=r.style.display==='none'?'block':'none';
+  renderReminders();
+}
+function saveJournal(){
+  const v=document.getElementById('journal-input').value.trim();
+  if(!v)return;
+  const now=new Date();
+  journals.unshift({text:v,date:now.toLocaleDateString('en-PH',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})});
+  document.getElementById('journal-input').value='';
+  renderJournals();
+}
+function renderJournals(){
+  const el=document.getElementById('journal-entries');
+  el.innerHTML=journals.map(j=>`<div class="jentry"><div class="jdate">${j.date}</div>${j.text}</div>`).join('');
+}
+function addReminder(){
+  const t=document.getElementById('rem-input').value.trim();
+  const ti=document.getElementById('rem-time').value;
+  if(!t)return;
+  reminders.push({text:t,time:ti||'--:--'});
+  document.getElementById('rem-input').value='';
+  document.getElementById('rem-time').value='';
+  renderReminders();
+}
+function removeReminder(i){reminders.splice(i,1);renderReminders();}
+function renderReminders(){
+  const el=document.getElementById('reminder-list');
+  el.innerHTML=reminders.map((r,i)=>`<div class="ritem"><div class="rdot"></div><div class="rtext">${r.text}</div><div class="rtime">${r.time}</div><button class="rdel" onclick="removeReminder(${i})">×</button></div>`).join('');
+}
+
+function openBreath(){document.getElementById('breath-modal').classList.add('open');}
+function closeBreath(){stopBreath();document.getElementById('breath-modal').classList.remove('open');}
+const phases=[{label:'Breathe In',cls:'expand',dur:4000},{label:'Hold',cls:'hold',dur:4000},{label:'Breathe Out',cls:'shrink',dur:4000}];
+let bIdx=0,bRunning=false;
+function startBreath(){
+  if(bRunning)return;bRunning=true;
+  function step(){
+    if(!bRunning)return;
+    const p=phases[bIdx%3];
+    const c=document.getElementById('breath-circle');
+    c.className='breath-circle '+p.cls;
+    document.getElementById('breath-label').textContent=p.label;
+    bIdx++;
+    breathTimer=setTimeout(step,p.dur);
+  }step();
+}
+function stopBreath(){
+  bRunning=false;clearTimeout(breathTimer);
+  const c=document.getElementById('breath-circle');
+  c.className='breath-circle';
+  document.getElementById('breath-label').textContent='Ready';
+}
+
+function openAppt(){
+  document.getElementById('appt-form').style.display='block';
+  document.getElementById('appt-confirm').style.display='none';
+  document.getElementById('appt-modal').classList.add('open');
+}
+function closeAppt(){document.getElementById('appt-modal').classList.remove('open');}
+function confirmAppt(){
+  const name=document.getElementById('appt-name').value||'Student';
+  const date=document.getElementById('appt-date').value||'TBD';
+  const time=document.getElementById('appt-time').value||'TBD';
+  const svc=document.getElementById('appt-service').value;
+  document.getElementById('appt-summary').textContent=`${name} · ${svc} on ${date} at ${time}`;
+  document.getElementById('appt-form').style.display='none';
+  document.getElementById('appt-confirm').style.display='block';
+}
+
+function openHotlines(){document.getElementById('hotlines-modal').classList.add('open');}
+function closeHotlines(){document.getElementById('hotlines-modal').classList.remove('open');}
+function openCounselor(){
+  document.getElementById('counselor-modal').classList.add('open');
+  if(chatHistory.length===0){addChatMsg('counselor','Hi! I\'m here to listen. How are you feeling today? 😊');}
+}
+function closeCounselor(){document.getElementById('counselor-modal').classList.remove('open');}
+function addChatMsg(role,msg){
+  chatHistory.push({role,msg});
+  const el=document.getElementById('chat-msgs');
+  el.innerHTML=chatHistory.map(c=>`<div style="margin-bottom:6px;text-align:${c.role==='user'?'right':'left'};"><span style="display:inline-block;background:${c.role==='user'?'var(--g)':'#fff'};color:${c.role==='user'?'#fff':'var(--text)'};border-radius:10px;padding:5px 10px;font-size:12px;border:1px solid var(--bdr);">${c.msg}</span></div>`).join('');
+  el.scrollTop=el.scrollHeight;
+}
+const autoReplies=['That sounds tough. You\'re not alone in this. 💚','Thank you for sharing. Take it one step at a time.','Have you tried the breathing exercise in the Stress tab?','Remember to be kind to yourself today. 🌱','I\'m here for you. Would you like to schedule an appointment?'];
+let replyIdx=0;
+function sendChat(){
+  const v=document.getElementById('chat-input').value.trim();
+  if(!v)return;
+  addChatMsg('user',v);
+  document.getElementById('chat-input').value='';
+  setTimeout(()=>{addChatMsg('counselor',autoReplies[replyIdx%autoReplies.length]);replyIdx++;},800);
+}
+document.getElementById('chat-input').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat();});
+
+function openEvents(){document.getElementById('events-modal').classList.add('open');}
+function closeEvents(){document.getElementById('events-modal').classList.remove('open');}
+</script>
+</body>
+</html>
